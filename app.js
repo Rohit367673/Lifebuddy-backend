@@ -110,8 +110,10 @@ app.use(cors({
       'http://localhost:3000',
       'http://localhost:5000',
       process.env.FRONTEND_URL,
-      // Allow Vercel preview deployments
-      /^https:\/\/life-buddy-.*\.vercel\.app$/
+      // Allow Vercel deployments
+      /^https:\/\/life-buddy-.*\.vercel\.app$/,
+      /^https:\/\/.*\.vercel\.app$/,
+      /^https:\/\/.*\.vercel\.dev$/
     ].filter(Boolean);
     
     // Also allow any localhost origin for development
