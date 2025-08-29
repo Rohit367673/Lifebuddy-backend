@@ -113,7 +113,10 @@ app.use(cors({
       // Allow Vercel deployments
       /^https:\/\/life-buddy-.*\.vercel\.app$/,
       /^https:\/\/.*\.vercel\.app$/,
-      /^https:\/\/.*\.vercel\.dev$/
+      /^https:\/\/.*\.vercel\.dev$/,
+      // Allow Railway backend health checks
+      /^https:\/\/.*\.up\.railway\.app$/,
+      /^https:\/\/.*\.railway\.app$/
     ].filter(Boolean);
     
     // Also allow any localhost origin for development
