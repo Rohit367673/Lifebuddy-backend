@@ -395,10 +395,12 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/lifebuddy
   // Start performance monitoring
   performanceMonitor.start();
 
-  // Start server
-  const PORT = process.env.PORT || 5001;
-  app.listen(PORT, () => {
+  // Start server with Railway-compatible port
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Railway PORT: ${process.env.PORT || 'not set'}`);
   });
 })
 .catch(err => {
@@ -407,9 +409,10 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/lifebuddy
     process.exit(1);
   } else {
     console.warn('[Dev] Continuing to run server without DB connection for debugging. Some routes may fail.');
-    const PORT = process.env.PORT || 5001;
-    app.listen(PORT, () => {
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT} (DB connection failed)`);
+      console.log(`Railway PORT: ${process.env.PORT || 'not set'}`);
     });
   }
 });
