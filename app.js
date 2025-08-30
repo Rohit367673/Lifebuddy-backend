@@ -66,9 +66,56 @@ app.use(compression({
   }
 }));
 
-// TEMPORARY CORS CONFIG FOR DEBUGGING
+// CORS configuration
 app.use(cors({
-  origin: '*', // Allow all origins
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      console.log('CORS: allowing request with no origin');
+      return callback(null, true);
+    }
+    
+    const allowedOrigins = [
+      'https://www.lifebuddy.space',
+      'https://lifebuddy.space',
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:3000',
+      'http://localhost:5000',
+      process.env.FRONTEND_URL,
+      // Allow Vercel deployments
+      /^https:\/\/life-buddy-.*\.vercel\.app$/,
+      /^https:\/\/.*\.vercel\.app$/,
+      /^https:\/\/.*\.vercel\.dev$/,
+      // Allow Railway backend health checks
+      /^https:\/\/.*\.up\.railway\.app$/,
+      /^https:\/\/.*\.railway\.app$/,
+      // Allow localhost for development
+      /^http:\/\/localhost:\d+$/
+    ].filter(Boolean);
+    
+    console.log('CORS check for origin:', origin);
+    
+    // Also allow any localhost origin for development
+    if (origin && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+      console.log('CORS allowed: localhost origin');
+      return callback(null, true);
+    }
+    
+    // Check string origins
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log('CORS allowed: exact match');
+      callback(null, true);
+    }
+    // Check regex patterns for Vercel deployments
+    else if (allowedOrigins.some(pattern => pattern instanceof RegExp && pattern.test(origin))) {
+      console.log('CORS allowed: regex match');
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Authorization', 'Content-Type', 'X-Requested-With', 'Accept', 'Origin'],
