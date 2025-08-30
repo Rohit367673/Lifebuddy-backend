@@ -337,7 +337,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/lifebuddy
     }
   });
 
-  // Root endpoint for Railway deployment verification
+  // Root endpoint for Railway health check
   app.get('/', (req, res) => {
     res.json({ 
       status: 'OK', 
