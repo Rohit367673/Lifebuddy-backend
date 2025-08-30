@@ -40,12 +40,21 @@ router.post('/create-order', authenticateUser, async (req, res) => {
     const finalCurrency = (currency || detectedCurrency || 'INR').toUpperCase();
     console.log('[Cashfree] Final currency:', finalCurrency);
 
-    // Cashfree sandbox supports INR only; bail early with helpful message
+    // Cashfree supports multiple currencies in production, but sandbox is INR only
     const isProduction = process.env.NODE_ENV === 'production';
     if (!isProduction && finalCurrency !== 'INR') {
       console.error('[Cashfree] Sandbox currency error:', finalCurrency);
       return res.status(400).json({ 
         error: 'Cashfree sandbox supports INR only. Use PayPal for other currencies.',
+        ...(process.env.NODE_ENV !== 'production' ? { details: `Currency: ${finalCurrency}` } : {})
+      });
+    }
+
+    // In production, ensure Cashfree supports the currency
+    if (isProduction && !['INR', 'USD'].includes(finalCurrency)) {
+      console.error('[Cashfree] Unsupported currency in production:', finalCurrency);
+      return res.status(400).json({ 
+        error: 'Currency not supported by Cashfree. Use PayPal for other currencies.',
         ...(process.env.NODE_ENV !== 'production' ? { details: `Currency: ${finalCurrency}` } : {})
       });
     }
