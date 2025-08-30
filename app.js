@@ -137,16 +137,23 @@ app.use(cors({
 // Additional CORS headers for Railway compatibility
 app.use((req, res, next) => {
   const origin = req.headers.origin;
+  console.log('[CORS Middleware] Request from origin:', origin, 'Method:', req.method, 'Path:', req.path);
+  
   if (origin === 'https://www.lifebuddy.space' || origin === 'https://lifebuddy.space') {
     res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
-    res.header('Access-Control-Allow-Headers', 'Authorization,Content-Type,X-Requested-With,Accept,Origin');
+    res.header('Access-Control-Allow-Headers', 'Authorization,Content-Type,X-Requested-With,Accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers');
+    res.header('Access-Control-Max-Age', '86400'); // Cache preflight for 24 hours
   }
   
-  // Handle preflight requests
+  // Handle preflight requests immediately
   if (req.method === 'OPTIONS') {
-    console.log('CORS preflight request for:', req.path, 'from origin:', origin);
+    console.log('[CORS] Handling preflight for:', req.path, 'from origin:', origin);
+    res.header('Access-Control-Allow-Origin', origin || 'https://www.lifebuddy.space');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
+    res.header('Access-Control-Allow-Headers', 'Authorization,Content-Type,X-Requested-With,Accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers');
     return res.status(200).end();
   }
   
