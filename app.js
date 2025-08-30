@@ -91,17 +91,22 @@ app.use(cors({
       /^http:\/\/localhost:\d+$/
     ].filter(Boolean);
     
+    console.log('CORS check for origin:', origin);
+    
     // Also allow any localhost origin for development
-    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+    if (origin && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+      console.log('CORS allowed: localhost origin');
       return callback(null, true);
     }
     
     // Check string origins
     if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log('CORS allowed: exact match');
       callback(null, true);
     }
     // Check regex patterns for Vercel deployments
     else if (allowedOrigins.some(pattern => pattern instanceof RegExp && pattern.test(origin))) {
+      console.log('CORS allowed: regex match');
       callback(null, true);
     } else {
       console.log('CORS blocked origin:', origin);
@@ -109,8 +114,10 @@ app.use(cors({
     }
   },
   credentials: true,
-  allowedHeaders: ['Authorization', 'Content-Type', 'X-Requested-With'],
-  exposedHeaders: ['Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Authorization', 'Content-Type', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['Authorization'],
+  optionsSuccessStatus: 200
 }));
 
 // Rate limiting - optimized for development
