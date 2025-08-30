@@ -297,6 +297,16 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/lifebuddy
     }
   });
 
+  // Root endpoint for Railway deployment verification
+  app.get('/', (req, res) => {
+    res.json({ 
+      status: 'OK', 
+      message: 'LifeBuddy Backend API', 
+      version: '1.0.0',
+      timestamp: new Date().toISOString()
+    });
+  });
+
   // Health check endpoint
   app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', message: 'LifeBuddy API is running' });
