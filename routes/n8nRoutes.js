@@ -232,7 +232,7 @@ router.post('/email/send-reminder', authenticateN8N, async (req, res) => {
             </div>
             
             <div style="text-align: center;">
-                <a href="https://lifebuddy.vercel.app/schedule/${scheduleId}" class="cta-button">
+                <a href="https://www.lifebuddy.space/schedule/${scheduleId}" class="cta-button">
                     📋 View Full Schedule Details
                 </a>
             </div>
@@ -242,7 +242,7 @@ router.post('/email/send-reminder', authenticateN8N, async (req, res) => {
             
             <div class="footer">
                 <p>Powered by <strong>LifeBuddy</strong> - Your AI Productivity Partner</p>
-                <p>📧 Questions? Reply to this email | 🌐 Visit: <a href="https://lifebuddy.vercel.app">lifebuddy.vercel.app</a></p>
+                <p>📧 Questions? Reply to this email | 🌐 Visit: <a href="https://www.lifebuddy.space">www.lifebuddy.space</a></p>
             </div>
         </div>
     </div>
@@ -259,7 +259,7 @@ router.post('/email/send-reminder', authenticateN8N, async (req, res) => {
       recipient: to,
       subject: emailSubject,
       scheduleId,
-      schedule_link: `https://lifebuddy.vercel.app/schedule/${scheduleId}`
+      schedule_link: `https://www.lifebuddy.space/schedule/${scheduleId}`
     });
   } catch (error) {
     console.error('Email reminder error:', error);
@@ -288,7 +288,7 @@ ${daily_content}
 💪 *Today's Motivation:*
 _"Success is not final, failure is not fatal: it is the courage to continue that counts. Make today count with your LifeBuddy schedule!"_
 
-🔗 [View Full Schedule](https://lifebuddy.vercel.app/schedule/${scheduleId})
+🔗 [View Full Schedule](https://www.lifebuddy.space/schedule/${scheduleId})
 
 Powered by *LifeBuddy* - Your AI Productivity Partner 🤖`;
     
@@ -328,7 +328,7 @@ ${daily_content}
 💪 *Today's Motivation:*
 _"Success is not final, failure is not fatal: it is the courage to continue that counts. Make today count with your LifeBuddy schedule!"_
 
-🔗 View Full Schedule: https://lifebuddy.vercel.app/schedule/${scheduleId}
+🔗 View Full Schedule: https://www.lifebuddy.space/schedule/${scheduleId}
 
 Powered by *LifeBuddy* - Your AI Productivity Partner 🤖`;
     
@@ -340,7 +340,7 @@ Powered by *LifeBuddy* - Your AI Productivity Partner 🤖`;
       message: 'LifeBuddy WhatsApp reminder sent successfully',
       recipient: to,
       scheduleId,
-      schedule_link: `https://lifebuddy.vercel.app/schedule/${scheduleId}`
+      schedule_link: `https://www.lifebuddy.space/schedule/${scheduleId}`
     });
   } catch (error) {
     console.error('WhatsApp reminder error:', error);

@@ -91,7 +91,7 @@ async function createTestSchedule() {
 • Plan tomorrow's priorities
 • Celebrate progress made
 
-🔗 **View Full Schedule**: https://lifebuddy.vercel.app/schedule/{{scheduleId}}`,
+🔗 **View Full Schedule**: https://www.lifebuddy.space/schedule/{{scheduleId}}`,
         tasks: [
           'Morning Planning & Goal Setting',
           'Deep Work Session 1', 
