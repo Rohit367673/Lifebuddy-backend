@@ -23,7 +23,8 @@ router.get('/schedules/today', authenticateN8N, async (req, res) => {
     
     const schedules = await Schedule.find({
       schedule_date: {
-        $eq: today.toISOString().split('T')[0]
+        $gte: today,
+        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
       },
       reminder_sent: { $ne: true },
       status: 'active'
