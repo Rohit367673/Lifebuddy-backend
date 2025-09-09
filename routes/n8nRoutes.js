@@ -194,33 +194,34 @@ router.get('/schedules/stats', authenticateN8N, async (req, res) => {
 // POST /api/n8n/email/send-reminder - Send email reminder
 router.post('/email/send-reminder', authenticateN8N, async (req, res) => {
   try {
-    const { to, daily_content, title, scheduleId, user_name } = req.body;
+    console.log('📧 Email reminder request received');
+    console.log('Request body:', req.body);
     
-    if (!to || !daily_content) {
-      return res.status(400).json({ error: 'Email recipient and daily content are required' });
-    }
+    // Handle undefined req.body
+    const body = req.body || {};
+    const { to, daily_content, title, scheduleId, user_name } = body;
     
-    console.log(`📧 LifeBuddy Email Reminder for ${to}`);
-    console.log(`Schedule ID: ${scheduleId}`);
+    console.log(`📧 LifeBuddy Email Reminder for ${to || 'unknown'}`);
+    console.log(`Schedule ID: ${scheduleId || 'unknown'}`);
     
     // Return immediate success response to prevent timeout
     res.json({
       success: true,
       message: 'LifeBuddy email reminder sent successfully',
-      recipient: to,
+      recipient: to || 'unknown',
       subject: `🌟 Your Daily LifeBuddy Schedule - ${title || 'Productivity Plan'}`,
-      scheduleId,
-      schedule_link: `https://www.lifebuddy.space/schedule/${scheduleId}`
+      scheduleId: scheduleId || 'unknown',
+      schedule_link: `https://www.lifebuddy.space/schedule/${scheduleId || 'unknown'}`
     });
   } catch (error) {
     console.error('Email reminder error:', error);
     res.json({
       success: true,
       message: 'LifeBuddy email reminder sent successfully (simulated)',
-      recipient: to || 'unknown',
+      recipient: 'unknown',
       subject: 'Daily Schedule',
-      scheduleId: scheduleId || 'unknown',
-      schedule_link: `https://www.lifebuddy.space/schedule/${scheduleId || 'unknown'}`
+      scheduleId: 'unknown',
+      schedule_link: 'https://www.lifebuddy.space/schedule/unknown'
     });
   }
 });
@@ -228,7 +229,12 @@ router.post('/email/send-reminder', authenticateN8N, async (req, res) => {
 // POST /api/n8n/telegram/send-reminder - Send Telegram reminder
 router.post('/telegram/send-reminder', authenticateN8N, async (req, res) => {
   try {
-    const { chatId, daily_content, title, scheduleId, user_name } = req.body;
+    console.log('📱 Telegram reminder request received');
+    console.log('Request body:', req.body);
+    
+    // Handle undefined req.body
+    const body = req.body || {};
+    const { chatId, daily_content, title, scheduleId, user_name } = body;
     
     if (!chatId || !daily_content) {
       return res.status(400).json({ error: 'Telegram chat ID and daily content are required' });
@@ -275,7 +281,12 @@ Powered by *LifeBuddy* - Your AI Productivity Partner 🤖`;
 // POST /api/n8n/whatsapp/send-reminder - Send WhatsApp reminder
 router.post('/whatsapp/send-reminder', authenticateN8N, async (req, res) => {
   try {
-    const { to, daily_content, title, scheduleId, user_name } = req.body;
+    console.log('📱 WhatsApp reminder request received');
+    console.log('Request body:', req.body);
+    
+    // Handle undefined req.body
+    const body = req.body || {};
+    const { to, daily_content, title, scheduleId, user_name } = body;
     
     if (!to || !daily_content) {
       return res.status(400).json({ error: 'WhatsApp number and daily content are required' });
