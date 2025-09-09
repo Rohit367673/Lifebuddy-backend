@@ -43,6 +43,36 @@ process.env.WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID || '
 process.env.WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN || 'your-whatsapp-access-token';
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'lifebuddy-jwt-secret-key-2024-change-in-production';
 
+// Import routes at the top level
+const authRoutes = require('./routes/authRoutes');
+const eventRoutes = require('./routes/eventRoutes');
+const userRoutes = require('./routes/userRoutes');
+const moodRoutes = require('./routes/moodRoutes');
+const achievementRoutes = require('./routes/achievementRoutes');
+const referralRoutes = require('./routes/referralRoutes');
+const motivationalRoutes = require('./routes/motivationalRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+const subscriptionRoutes = require('./routes/subscriptionRoutes');
+const storeRoutes = require('./routes/storeRoutes');
+const premiumTaskRoutes = require('./routes/premiumTaskRoutes');
+const aiChatRoutes = require('./routes/aiChatRoutes');
+const couponRoutes = require('./routes/couponRoutes');
+const trialRoutes = require('./routes/trialRoutes');
+const paypalRoutes = require('./routes/paypalRoutes');
+const cashfreeRoutes = require('./routes/cashfreeRoutes');
+const pricingRoutes = require('./routes/pricingRoutes');
+const adminCouponRoutes = require('./routes/adminCouponRoutes');
+const n8nRoutes = require('./routes/n8nRoutes');
+const scheduleRoutes = require('./routes/scheduleRoutes');
+const Activity = require('./models/Activity');
+const ReferralCode = require('./models/ReferralCode');
+const ReferralHit = require('./models/ReferralHit');
+const User = require('./models/User');
+const { authenticateUser } = require('./middlewares/authMiddleware');
+const { logEnvironmentStatus } = require('./utils/environmentValidator');
+const { logPaymentStatus } = require('./utils/paymentValidator');
+const Achievement = require('./models/Achievement');
+
 const app = express();
 
 // Trust proxy for tunnels (ngrok/localtunnel) so rate-limit sees correct IP
@@ -74,7 +104,7 @@ const allowedOrigins = [
   'http://localhost:3000'
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
@@ -84,10 +114,12 @@ app.use(cors({
   credentials: true,
   methods: ['GET','POST','PUT','DELETE','OPTIONS','PATCH'],
   allowedHeaders: ['Authorization','Content-Type','X-Requested-With','Accept','Origin']
-}));
+};
 
-// Handle preflight
-app.options('*', cors());
+app.use(cors(corsOptions));
+
+// Handle preflight with same options
+app.options('*', cors(corsOptions));
 
 // Rate limiting - optimized for development
 const limiter = rateLimit({
@@ -123,13 +155,7 @@ app.use(morgan('combined', {
   }
 }));
 
-// Body parsing middleware
-// IMPORTANT: Use raw body for Cashfree webhook so signature verification matches exactly
-app.use('/api/payments/cashfree/webhook', express.raw({ type: '*/*' }));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
-
-// Connect to MongoDB
+// MongoDB connection with connection pooling
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/lifebuddy', {
   maxPoolSize: 10, // Maximum number of connections in the pool
   minPoolSize: 2,  // Minimum number of connections in the pool
@@ -151,34 +177,6 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/lifebuddy
       console.error('❌ Failed to drop database:', err);
     }
   }
-
-  // Import routes AFTER connection established
-  const authRoutes = require('./routes/authRoutes');
-  const eventRoutes = require('./routes/eventRoutes');
-  const userRoutes = require('./routes/userRoutes');
-  const moodRoutes = require('./routes/moodRoutes');
-  const achievementRoutes = require('./routes/achievementRoutes');
-  const referralRoutes = require('./routes/referralRoutes');
-  const motivationalRoutes = require('./routes/motivationalRoutes');
-  const taskRoutes = require('./routes/taskRoutes');
-  const subscriptionRoutes = require('./routes/subscriptionRoutes');
-  const storeRoutes = require('./routes/storeRoutes');
-  const premiumTaskRoutes = require('./routes/premiumTaskRoutes');
-  const aiChatRoutes = require('./routes/aiChatRoutes');
-  const couponRoutes = require('./routes/couponRoutes');
-  const trialRoutes = require('./routes/trialRoutes');
-  const paypalRoutes = require('./routes/paypalRoutes');
-  const cashfreeRoutes = require('./routes/cashfreeRoutes');
-  const pricingRoutes = require('./routes/pricingRoutes');
-  const adminCouponRoutes = require('./routes/adminCouponRoutes');
-  const Activity = require('./models/Activity');
-  const ReferralCode = require('./models/ReferralCode');
-  const ReferralHit = require('./models/ReferralHit');
-  const User = require('./models/User');
-  const { authenticateUser } = require('./middlewares/authMiddleware');
-  const { logEnvironmentStatus } = require('./utils/environmentValidator');
-  const { logPaymentStatus } = require('./utils/paymentValidator');
-  const Achievement = require('./models/Achievement');
 
   // Validate environment on startup
   logEnvironmentStatus();
@@ -275,6 +273,10 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/lifebuddy
       timestamp: new Date().toISOString()
     });
   });
+
+  // n8n and schedule routes (must be before catch-all)
+  app.use('/api/n8n', n8nRoutes);
+  app.use('/api/schedule', scheduleRoutes);
 
   // Health check endpoint
   app.get('/api/health', (req, res) => {
