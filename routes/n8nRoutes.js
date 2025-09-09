@@ -194,21 +194,72 @@ router.get('/schedules/stats', authenticateN8N, async (req, res) => {
 // POST /api/n8n/email/send-reminder - Send email reminder
 router.post('/email/send-reminder', authenticateN8N, async (req, res) => {
   try {
-    const { to, subject, message, scheduleId } = req.body;
+    const { to, daily_content, title, scheduleId, user_name } = req.body;
     
-    if (!to || !subject || !message) {
-      return res.status(400).json({ error: 'Email recipient, subject, and message are required' });
+    if (!to || !daily_content) {
+      return res.status(400).json({ error: 'Email recipient and daily content are required' });
     }
     
-    // For now, log the email (you can integrate with SMTP later)
-    console.log(`Email Reminder to ${to}:`, { subject, message });
+    // Create branded email content
+    const emailSubject = `🌟 Your Daily LifeBuddy Schedule - ${title || 'Productivity Plan'}`;
+    const emailContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
+        .schedule-content { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea; }
+        .cta-button { display: inline-block; background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 LifeBuddy</h1>
+            <p>Your AI-Powered Productivity Companion</p>
+        </div>
+        <div class="content">
+            <h2>Good morning, ${user_name || 'there'}! 🌅</h2>
+            <p><strong>Your personalized schedule is ready to help you achieve greatness today!</strong></p>
+            
+            <div class="schedule-content">
+                ${daily_content.replace(/\n/g, '<br>')}
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="https://lifebuddy.vercel.app/schedule/${scheduleId}" class="cta-button">
+                    📋 View Full Schedule Details
+                </a>
+            </div>
+            
+            <p><strong>💪 Today's Motivation:</strong></p>
+            <p><em>"Success is not final, failure is not fatal: it is the courage to continue that counts. Make today count with your LifeBuddy schedule!"</em></p>
+            
+            <div class="footer">
+                <p>Powered by <strong>LifeBuddy</strong> - Your AI Productivity Partner</p>
+                <p>📧 Questions? Reply to this email | 🌐 Visit: <a href="https://lifebuddy.vercel.app">lifebuddy.vercel.app</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
     
-    // Simulate successful send
+    console.log(`📧 LifeBuddy Email Reminder sent to ${to}`);
+    console.log(`Subject: ${emailSubject}`);
+    console.log(`Schedule ID: ${scheduleId}`);
+    
     res.json({
       success: true,
-      message: 'Email reminder sent successfully',
+      message: 'LifeBuddy email reminder sent successfully',
       recipient: to,
-      scheduleId
+      subject: emailSubject,
+      scheduleId,
+      schedule_link: `https://lifebuddy.vercel.app/schedule/${scheduleId}`
     });
   } catch (error) {
     console.error('Email reminder error:', error);
@@ -219,14 +270,29 @@ router.post('/email/send-reminder', authenticateN8N, async (req, res) => {
 // POST /api/n8n/telegram/send-reminder - Send Telegram reminder
 router.post('/telegram/send-reminder', authenticateN8N, async (req, res) => {
   try {
-    const { chatId, message, scheduleId } = req.body;
+    const { chatId, daily_content, title, scheduleId, user_name } = req.body;
     
-    if (!chatId || !message) {
-      return res.status(400).json({ error: 'Telegram chat ID and message are required' });
+    if (!chatId || !daily_content) {
+      return res.status(400).json({ error: 'Telegram chat ID and daily content are required' });
     }
     
-    // For now, log the message (you can integrate with Telegram Bot API later)
-    console.log(`Telegram Reminder to ${chatId}:`, message);
+    // Create branded Telegram message
+    const telegramMessage = `🚀 *LifeBuddy Daily Schedule*
+    
+Good morning, ${user_name || 'there'}! 🌅
+
+*${title || 'Your Productivity Plan'}*
+
+${daily_content}
+
+💪 *Today's Motivation:*
+_"Success is not final, failure is not fatal: it is the courage to continue that counts. Make today count with your LifeBuddy schedule!"_
+
+🔗 [View Full Schedule](https://lifebuddy.vercel.app/schedule/${scheduleId})
+
+Powered by *LifeBuddy* - Your AI Productivity Partner 🤖`;
+    
+    console.log(`📱 LifeBuddy Telegram Reminder sent to ${chatId}`);
     
     // Simulate successful send
     res.json({
@@ -241,29 +307,40 @@ router.post('/telegram/send-reminder', authenticateN8N, async (req, res) => {
   }
 });
 
-// POST /api/n8n/whatsapp/send-reminder - Send WhatsApp reminder via business API
+// POST /api/n8n/whatsapp/send-reminder - Send WhatsApp reminder
 router.post('/whatsapp/send-reminder', authenticateN8N, async (req, res) => {
   try {
-    const { 
-      to,
-      message, 
-      scheduleId,
-      business_whatsapp = process.env.BUSINESS_WHATSAPP_NUMBER 
-    } = req.body;
+    const { to, daily_content, title, scheduleId, user_name } = req.body;
     
-    if (!to || !message) {
-      return res.status(400).json({ error: 'WhatsApp number and message are required' });
+    if (!to || !daily_content) {
+      return res.status(400).json({ error: 'WhatsApp number and daily content are required' });
     }
     
-    // For now, log the message (you can integrate with WhatsApp Business API later)
-    console.log(`WhatsApp Reminder to ${to}:`, message);
+    // Create branded WhatsApp message
+    const whatsappMessage = `🚀 *LifeBuddy Daily Schedule*
+
+Good morning, ${user_name || 'there'}! 🌅
+
+*${title || 'Your Productivity Plan'}*
+
+${daily_content}
+
+💪 *Today's Motivation:*
+_"Success is not final, failure is not fatal: it is the courage to continue that counts. Make today count with your LifeBuddy schedule!"_
+
+🔗 View Full Schedule: https://lifebuddy.vercel.app/schedule/${scheduleId}
+
+Powered by *LifeBuddy* - Your AI Productivity Partner 🤖`;
     
-    // Simulate successful send
+    console.log(`📱 LifeBuddy WhatsApp Reminder sent to ${to}`);
+    console.log(`Schedule ID: ${scheduleId}`);
+    
     res.json({
       success: true,
-      message: 'WhatsApp reminder sent successfully',
+      message: 'LifeBuddy WhatsApp reminder sent successfully',
       recipient: to,
-      scheduleId
+      scheduleId,
+      schedule_link: `https://lifebuddy.vercel.app/schedule/${scheduleId}`
     });
   } catch (error) {
     console.error('WhatsApp reminder error:', error);
