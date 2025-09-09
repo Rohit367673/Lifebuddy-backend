@@ -293,6 +293,7 @@ _"Success is not final, failure is not fatal: it is the courage to continue that
 Powered by *LifeBuddy* - Your AI Productivity Partner 🤖`;
     
     console.log(`📱 LifeBuddy Telegram Reminder sent to ${chatId}`);
+    console.log('Telegram Message Content:', telegramMessage);
     
     // Simulate successful send
     res.json({
@@ -334,6 +335,7 @@ Powered by *LifeBuddy* - Your AI Productivity Partner 🤖`;
     
     console.log(`📱 LifeBuddy WhatsApp Reminder sent to ${to}`);
     console.log(`Schedule ID: ${scheduleId}`);
+    console.log('WhatsApp Message Content:', whatsappMessage);
     
     res.json({
       success: true,

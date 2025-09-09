@@ -104,15 +104,15 @@
           "options": {
             "caseSensitive": true,
             "leftValue": "",
-            "typeValidation": "strict"
+            "typeValidation": "loose"
           },
           "conditions": [
             {
-              "leftValue": "={{ $json.reminder_platforms }}",
-              "rightValue": "email",
+              "leftValue": "={{ $json.reminder_platforms.includes('email') }}",
+              "rightValue": true,
               "operator": {
-                "type": "array",
-                "operation": "contains"
+                "type": "boolean",
+                "operation": "equals"
               }
             }
           ],
@@ -131,15 +131,15 @@
           "options": {
             "caseSensitive": true,
             "leftValue": "",
-            "typeValidation": "strict"
+            "typeValidation": "loose"
           },
           "conditions": [
             {
-              "leftValue": "={{ $json.reminder_platforms }}",
-              "rightValue": "whatsapp",
+              "leftValue": "={{ $json.reminder_platforms.includes('whatsapp') }}",
+              "rightValue": true,
               "operator": {
-                "type": "array",
-                "operation": "contains"
+                "type": "boolean",
+                "operation": "equals"
               }
             }
           ],
@@ -158,15 +158,15 @@
           "options": {
             "caseSensitive": true,
             "leftValue": "",
-            "typeValidation": "strict"
+            "typeValidation": "loose"
           },
           "conditions": [
             {
-              "leftValue": "={{ $json.reminder_platforms }}",
-              "rightValue": "telegram",
+              "leftValue": "={{ $json.reminder_platforms.includes('telegram') }}",
+              "rightValue": true,
               "operator": {
-                "type": "array",
-                "operation": "contains"
+                "type": "boolean",
+                "operation": "equals"
               }
             }
           ],
