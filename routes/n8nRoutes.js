@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Schedule = require('../models/Schedule');
 const User = require('../models/User');
+const { MessagingService } = require('../services/messagingService');
 const { authenticateUser } = require('../middlewares/authMiddleware');
 
 // Middleware for n8n API key authentication
@@ -228,139 +229,101 @@ router.post('/email/send-reminder', authenticateN8N, async (req, res) => {
 
 // POST /api/n8n/telegram/send-reminder - Send Telegram reminder
 router.post('/telegram/send-reminder', authenticateN8N, async (req, res) => {
-  try {
-    console.log('📱 Telegram reminder request received');
-    console.log('Request body:', req.body);
-    
-    // Handle undefined req.body
-    const body = req.body || {};
-    const { chatId, daily_content, title, scheduleId, user_name } = body;
-    
-    if (!chatId || !daily_content) {
-      return res.status(400).json({ error: 'Telegram chat ID and daily content are required' });
-    }
-    
-    // Create branded Telegram message
-    const telegramMessage = `🚀 *LifeBuddy Daily Schedule*
-    
-Good morning, ${user_name || 'there'}! 🌅
+try {
+console.log('📱 Telegram reminder request received');
+const body = req.body || {};
+const { chatId, daily_content, title, scheduleId, user_name } = body;
+if (!chatId || !daily_content) {
+return res.status(400).json({ error: 'Telegram chat ID and daily content are required' });
 
-*${title || 'Your Productivity Plan'}*
+}
 
-${daily_content}
+const messagingService = new MessagingService();
+const tempUser = { notificationPlatform: 'telegram', telegramChatId: chatId, email: 'noreply@lifebuddy.space' };
+const task = {
+_id: scheduleId || 'n8n-telegram',
+title: title || 'Your Productivity Plan',
+generatedSchedule: [{
+day: 1,
+subtask: daily_content,
+resources: [],
+exercises: [],
+notes: '',
+motivationTip: "Success is not final, failure is not fatal: it is the courage to continue that counts."
+}]
+};
 
-💪 *Today's Motivation:*
-_"Success is not final, failure is not fatal: it is the courage to continue that counts. Make today count with your LifeBuddy schedule!"_
-
-🔗 [View Full Schedule](https://www.lifebuddy.space/schedule/${scheduleId})
-
-Powered by *LifeBuddy* - Your AI Productivity Partner 🤖`;
-    
-    console.log(`📱 LifeBuddy Telegram Reminder sent to ${chatId}`);
-    console.log('Telegram Message Content:', telegramMessage);
-    
-    // Simulate successful send
-    res.json({
-      success: true,
-      message: 'Telegram reminder sent successfully',
-      chatId,
-      scheduleId
-    });
-  } catch (error) {
-    console.error('Telegram reminder error:', error);
-    // Return success for testing since we're simulating the send
-    res.json({
-      success: true,
-      message: 'Telegram reminder sent successfully (simulated)',
-      chatId: chatId || 'unknown',
-      scheduleId: scheduleId || 'unknown'
-    });
-  }
+const result = await messagingService.sendMessage(tempUser, task, 1);
+return res.json({ success: !!result.success, platform: 'telegram', chatId, scheduleId, result });
+} catch (error) {
+console.error('Telegram reminder error:', error);
+return res.status(500).json({ success: false, error: error.message });
+}
 });
 
 // POST /api/n8n/whatsapp/send-reminder - Send WhatsApp reminder
 router.post('/whatsapp/send-reminder', authenticateN8N, async (req, res) => {
-  try {
-    console.log('📱 WhatsApp reminder request received');
-    console.log('Request body:', req.body);
-    
-    // Handle undefined req.body
-    const body = req.body || {};
-    const { to, daily_content, title, scheduleId, user_name } = body;
-    
-    if (!to || !daily_content) {
-      return res.status(400).json({ error: 'WhatsApp number and daily content are required' });
-    }
-    
-    // Create branded WhatsApp message
-    const whatsappMessage = `🚀 *LifeBuddy Daily Schedule*
+try {
+console.log('📱 WhatsApp reminder request received');
+const body = req.body || {};
+const { to, daily_content, title, scheduleId, user_name } = body;
+if (!to || !daily_content) {
+return res.status(400).json({ error: 'WhatsApp number and daily content are required' });
 
-Good morning, ${user_name || 'there'}! 🌅
+}
 
-*${title || 'Your Productivity Plan'}*
+const messagingService = new MessagingService();
+const tempUser = { notificationPlatform: 'whatsapp', phoneNumber: to, email: 'noreply@lifebuddy.space' };
+const task = {
+_id: scheduleId || 'n8n-whatsapp',
+title: title || 'Your Productivity Plan',
+generatedSchedule: [{
+day: 1,
+subtask: daily_content,
+resources: [],
+exercises: [],
+notes: '',
+motivationTip: "Success is not final, failure is not fatal: it is the courage to continue that counts."
+}]
+};
 
-${daily_content}
-
-💪 *Today's Motivation:*
-_"Success is not final, failure is not fatal: it is the courage to continue that counts. Make today count with your LifeBuddy schedule!"_
-
-🔗 View Full Schedule: https://www.lifebuddy.space/schedule/${scheduleId}
-
-Powered by *LifeBuddy* - Your AI Productivity Partner 🤖`;
-    
-    console.log(`📱 LifeBuddy WhatsApp Reminder sent to ${to}`);
-    console.log(`Schedule ID: ${scheduleId}`);
-    console.log('WhatsApp Message Content:', whatsappMessage);
-    
-    res.json({
-      success: true,
-      message: 'LifeBuddy WhatsApp reminder sent successfully',
-      recipient: to,
-      scheduleId,
-      schedule_link: `https://www.lifebuddy.space/schedule/${scheduleId}`
-    });
-  } catch (error) {
-    console.error('WhatsApp reminder error:', error);
-    // Return success for testing since we're simulating the send
-    res.json({
-      success: true,
-      message: 'LifeBuddy WhatsApp reminder sent successfully (simulated)',
-      recipient: to || 'unknown',
-      scheduleId: scheduleId || 'unknown',
-      schedule_link: `https://www.lifebuddy.space/schedule/${scheduleId || 'unknown'}`
-    });
-  }
+const result = await messagingService.sendMessage(tempUser, task, 1);
+return res.json({ success: !!result.success, platform: 'whatsapp', to, scheduleId, result });
+} catch (error) {
+console.error('WhatsApp reminder error:', error);
+return res.status(500).json({ success: false, error: error.message });
+}
 });
 
 // POST /api/n8n/schedules/mark-sent - Mark reminder as sent for a platform
 router.post('/schedules/mark-sent', authenticateN8N, async (req, res) => {
-  try {
-    console.log('📝 Mark reminder sent request received');
-    console.log('Request body:', req.body);
-    
-    // Handle undefined req.body
-    const body = req.body || {};
-    const { scheduleId, platform } = body;
-    
-    console.log(`Marking reminder as sent for schedule ${scheduleId || 'unknown'} on platform ${platform || 'unknown'}`);
-    
-    res.json({
-      success: true,
-      message: `Reminder marked as sent for ${platform || 'unknown'}`,
-      scheduleId: scheduleId || 'unknown',
-      platform: platform || 'unknown',
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    console.error('Mark sent error:', error);
-    res.json({
-      success: true,
-      message: 'Reminder marked as sent (simulated)',
-      scheduleId: 'unknown',
-      platform: 'unknown',
-      timestamp: new Date().toISOString()
-    });
-  }
+try {
+console.log('📝 Mark reminder sent request received');
+console.log('Request body:', req.body);
+
+// Handle undefined req.body
+const body = req.body || {};
+const { scheduleId, platform } = body;
+
+console.log(`Marking reminder as sent for schedule ${scheduleId || 'unknown'} on platform ${platform || 'unknown'}`);
+
+res.json({
+success: true,
+message: `Reminder marked as sent for ${platform || 'unknown'}`,
+scheduleId: scheduleId || 'unknown',
+platform: platform || 'unknown',
+timestamp: new Date().toISOString()
+});
+} catch (error) {
+console.error('Mark sent error:', error);
+res.json({
+success: true,
+message: 'Reminder marked as sent (simulated)',
+scheduleId: 'unknown',
+platform: 'unknown',
+timestamp: new Date().toISOString()
+});
+}
 });
 
 // POST /api/n8n/test-connection - Test n8n connection
