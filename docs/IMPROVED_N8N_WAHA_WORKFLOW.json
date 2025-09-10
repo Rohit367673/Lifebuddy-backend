@@ -245,29 +245,40 @@
     },
     {
       "parameters": {
-        "resource": "message",
-        "operation": "sendText",
-        "sessionName": "lifebuddy",
-        "chatId": "={{ $json.whatsapp_chat_id }}",
-        "text": "🚀 *LifeBuddy Daily Schedule*\n\nGood morning, {{ $json.user_name }}! 🌅\n\n*{{ $json.title }}*\n\n{{ $json.daily_content }}\n\n💪 *Today's Motivation:*\n_\"Success is not final, failure is not fatal: it is the courage to continue that counts. Make today count with your LifeBuddy schedule!\"_\n\n🔗 View Full Schedule: https://www.lifebuddy.space/schedule/{{ $json._id }}\n\nPowered by *LifeBuddy* - Your AI Productivity Partner 🤖",
-        "additionalFields": {
-          "parseMode": "markdown"
+        "method": "POST",
+        "url": "http://localhost:3000/api/sendText",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "your-secret-key-321"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"session\": \"lifebuddy\",\n  \"chatId\": $json.whatsapp_chat_id,\n  \"text\": \"🚀 *LifeBuddy Daily Schedule*\\n\\nGood morning, \" + $json.user_name + \"! 🌅\\n\\n*\" + $json.title + \"*\\n\\n\" + $json.daily_content + \"\\n\\n💪 *Today's Motivation:*\\n_\\\"Success is not final, failure is not fatal: it is the courage to continue that counts. Make today count with your LifeBuddy schedule!\\\"_\\n\\n🔗 View Full Schedule: https://www.lifebuddy.space/schedule/\" + $json._id + \"\\n\\nPowered by *LifeBuddy* - Your AI Productivity Partner 🤖\"\n} }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
         }
       },
-      "name": "Send WhatsApp via WAHA Agent",
-      "type": "@devlikeapro/n8n-nodes-waha.waha",
-      "typeVersion": 1,
+      "name": "Send WhatsApp via WAHA HTTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         256,
         320
       ],
-      "id": "0caee469-fed6-430e-9bb9-3b481c00d200",
-      "credentials": {
-        "wahaApi": {
-          "id": "waha_credentials_id",
-          "name": "WAHA API Credentials"
-        }
-      }
+      "id": "0caee469-fed6-430e-9bb9-3b481c00d200"
     },
     {
       "parameters": {
@@ -401,7 +412,7 @@
       "main": [
         [
           {
-            "node": "Send WhatsApp via WAHA Agent",
+            "node": "Send WhatsApp via WAHA HTTP",
             "type": "main",
             "index": 0
           }
@@ -430,7 +441,7 @@
         ]
       ]
     },
-    "Send WhatsApp via WAHA Agent": {
+    "Send WhatsApp via WAHA HTTP": {
       "main": [
         [
           {
