@@ -64,6 +64,7 @@ const pricingRoutes = require('./routes/pricingRoutes');
 const adminCouponRoutes = require('./routes/adminCouponRoutes');
 const n8nRoutes = require('./routes/n8nRoutes');
 const scheduleRoutes = require('./routes/scheduleRoutes');
+const deviceConnectionRoutes = require('./routes/deviceConnection');
 const Activity = require('./models/Activity');
 const ReferralCode = require('./models/ReferralCode');
 const ReferralHit = require('./models/ReferralHit');
@@ -277,6 +278,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/lifebuddy
   // n8n and schedule routes (must be before catch-all)
   app.use('/api/n8n', n8nRoutes);
   app.use('/api/schedule', scheduleRoutes);
+  app.use('/api/device-connection', deviceConnectionRoutes);
 
   // Health check endpoint
   app.get('/api/health', (req, res) => {
