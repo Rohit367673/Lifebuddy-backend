@@ -147,6 +147,10 @@ app.use((req, res, next) => {
 const performanceMonitor = require('./scripts/monitorPerformance');
 app.use(performanceMonitor.trackRequest.bind(performanceMonitor));
 
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
 // Logging
 app.use(morgan('combined', {
   skip: (req, res) => {
