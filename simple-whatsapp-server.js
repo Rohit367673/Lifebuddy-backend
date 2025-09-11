@@ -23,11 +23,11 @@ app.get('/api/sessions/:session/auth/qr', (req, res) => {
   res.json({ qr: 'data:image/png;base64,simulated-qr-code' });
 });
 
-// Send text message endpoint
+// Send text message endpoint (WAHA style)
 app.post('/api/sendText', (req, res) => {
   const { session, chatId, text } = req.body;
   
-  console.log('\n📱 WhatsApp Message Sent:');
+  console.log('\n📱 WhatsApp Message Sent (WAHA):');
   console.log('========================');
   console.log(`Session: ${session}`);
   console.log(`To: ${chatId}`);
@@ -38,6 +38,24 @@ app.post('/api/sendText', (req, res) => {
     success: true, 
     messageId: 'msg_' + Date.now(),
     chatId,
+    text: text.substring(0, 50) + '...'
+  });
+});
+
+// Send text message endpoint (Simple style for Option B)
+app.post('/send', (req, res) => {
+  const { to, text } = req.body;
+  
+  console.log('\n📱 WhatsApp Message Sent (Simple):');
+  console.log('========================');
+  console.log(`To: ${to}`);
+  console.log(`Message: ${text}`);
+  console.log('========================\n');
+  
+  res.json({ 
+    success: true, 
+    messageId: 'msg_' + Date.now(),
+    to,
     text: text.substring(0, 50) + '...'
   });
 });
