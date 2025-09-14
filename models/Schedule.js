@@ -160,11 +160,17 @@ scheduleSchema.methods.getTodayContent = function() {
   const scheduleDate = new Date(this.schedule_date);
   scheduleDate.setHours(0, 0, 0, 0);
   
+  // Calculate which day of the schedule we're on
   const daysDiff = Math.floor((today - scheduleDate) / (1000 * 60 * 60 * 24)) + 1;
   
+  // Check if today falls within the schedule duration
   if (daysDiff > 0 && daysDiff <= this.duration_days) {
     const daySchedule = this.daily_schedules.find(day => day.day === daysDiff);
-    return daySchedule ? daySchedule.content : null;
+    if (daySchedule) {
+      // Update current_day to match today's position in the schedule
+      this.current_day = daysDiff;
+      return daySchedule.content;
+    }
   }
   
   return null;
@@ -182,6 +188,26 @@ scheduleSchema.methods.markReminderSent = function() {
 scheduleSchema.methods.resetDailyReminder = function() {
   this.reminder_sent = false;
   return this.save();
+};
+
+// Method to advance to next day and reset reminder flag
+scheduleSchema.methods.advanceToNextDay = function() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const scheduleDate = new Date(this.schedule_date);
+  scheduleDate.setHours(0, 0, 0, 0);
+  
+  // Calculate which day of the schedule we should be on
+  const daysDiff = Math.floor((today - scheduleDate) / (1000 * 60 * 60 * 24)) + 1;
+  
+  if (daysDiff > 0 && daysDiff <= this.duration_days) {
+    this.current_day = daysDiff;
+    this.reminder_sent = false; // Reset reminder flag for new day
+    return this.save();
+  }
+  
+  return Promise.resolve(this);
 };
 
 // Static method to find today's schedules that need reminders

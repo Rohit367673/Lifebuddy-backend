@@ -1,0 +1,4 @@
+FROM devlikeapro/whatsapp-http-api:latest
+
+# Force host and port binding
+CMD ["node", "server.js", "--host=0.0.0.0", "--port=$PORT"]
